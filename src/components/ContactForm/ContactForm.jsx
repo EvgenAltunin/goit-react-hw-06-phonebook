@@ -1,17 +1,25 @@
-import {useState} from 'react';
-import { ContactEditor, Lable, Input, Submit } from "components/ContactForm/ContactForm.styled";
+import {
+  ContactEditor,
+  Lable,
+  Input,
+  Submit,
+} from 'components/ContactForm/ContactForm.styled';
 
-export function ContactForm({ onSubmit }) {
+import { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { addContact } from '../../redux/actions';
+import shortid from 'shortid';
+import { toast } from 'react-toastify';
+import { notificationParams } from 'settings/settings';
+
+
+
+export function ContactForm() {
   const [name, setName] = useState('');
   const [number, setNumber] = useState('');
+  const contacts = useSelector(state => state.contacts);
 
-  // const handleNameChange = event => {
-  //   setName(event.target.value);
-  // };
-
-  // const handleNumberChange = event => {
-  //   setNumber(event.target.value);
-  // };
+  const dispatch = useDispatch();
 
   const handleChange = event => {
     switch (event.target.name) {
@@ -28,8 +36,16 @@ export function ContactForm({ onSubmit }) {
 
   const handleSubmit = event => {
     event.preventDefault();
-    const newContactData = { name, number };
-    onSubmit(newContactData);
+    const isContactNameInContactsList = contacts.some(
+      contact => contact.name === name
+    );
+
+    if (isContactNameInContactsList) {
+      toast.warning(`${name} is already in contacts!`, { notificationParams });
+    } else {
+      dispatch(addContact({ name, number, id: shortid.generate() }));
+      toast.success(`${name} added to your contacts!`);
+    }
     setName('');
     setNumber('');
   };

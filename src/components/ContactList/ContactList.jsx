@@ -1,37 +1,57 @@
 import { BsFillPersonFill, BsTelephoneFill } from 'react-icons/bs';
+import { useSelector, useDispatch } from 'react-redux';
+import { deleteContact } from '../../redux/actions';
 
+import {
+  ContactsList,
+  ContactItem,
+  ContactText,
+  ContactButton,
+} from 'components/ContactList/ContactList.styled';
 
-import PropTypes from 'prop-types'
-import {ContactsList, ContactItem, ContactText, ContactButton} from 'components/ContactList/ContactList.styled'
+export const ContactList = () => {
+  const contacts = useSelector(state => state.contacts);
+  const filter = useSelector(state => state.filter);
+  const dispatch = useDispatch();
 
-export const ContactList = ({ contacts, onDeleteContact }) => (
-  <ContactsList>
-    {contacts.map(({ id, name, number }) => (
-      <ContactItem key={id}>
-        <ContactText>
-          <BsFillPersonFill
-            style={{ fill: 'orange', marginRight: '5px', width: '14px', height:'14px' }}
-          />
-          {name}
-        </ContactText>
-        <ContactText>
-          <BsTelephoneFill
-            style={{ fill: 'orange', marginRight: '5px', width: '14px', height:'14px' }}
-          />
-          {number}
-        </ContactText>
-        <ContactButton
-          type="button"
-          aria-label="Add new contact"
-          onClick={() => onDeleteContact(id)}
-        >
-          Delete
-        </ContactButton>
-      </ContactItem>
-    ))}
-  </ContactsList>
-);
-
-ContactList.propTypes = {
-    contacts: PropTypes.array.isRequired
-}
+  const filteredContacts = contacts.filter(value =>
+    value.name.toLowerCase().includes(filter.toLowerCase())
+  );
+  return (
+    <ContactsList>
+      {filteredContacts.map(({ id, name, number }) => (
+        <ContactItem key={id}>
+          <ContactText>
+            <BsFillPersonFill
+              style={{
+                fill: 'orange',
+                marginRight: '5px',
+                width: '14px',
+                height: '14px',
+              }}
+            />
+            {name}
+          </ContactText>
+          <ContactText>
+            <BsTelephoneFill
+              style={{
+                fill: 'orange',
+                marginRight: '5px',
+                width: '14px',
+                height: '14px',
+              }}
+            />
+            {number}
+          </ContactText>
+          <ContactButton
+            type="button"
+            aria-label="Add new contact"
+            onClick={() => dispatch(deleteContact(id))}
+          >
+            Delete
+          </ContactButton>
+        </ContactItem>
+      ))}
+    </ContactsList>
+  );
+};

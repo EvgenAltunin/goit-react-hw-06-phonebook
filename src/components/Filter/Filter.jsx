@@ -1,14 +1,24 @@
-import React from 'react'   
-import { Lable, Input } from "components/Filter/Filter.styled"; 
-export const Filter = ({ value, onChange }) => {
-    return (
-        <Lable>Find contacts by name
-            <Input
-                type="text"
-                name="filter"
-                onChange={onChange}
-                value={value}
-            />
-        </Lable>
-)}
- 
+import React from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { setFilterValue } from '../../redux/actions';
+
+import { Lable, Input } from 'components/Filter/Filter.styled';
+export const Filter = () => {
+  const filter = useSelector(state => state.filter);
+  const dispatch = useDispatch();
+  const handleFilterChange = event => {
+    dispatch(setFilterValue(event.target.value));
+  };
+
+  return (
+    <Lable>
+      Find contacts by name
+      <Input
+        type="text"
+        name="filter"
+        onChange={handleFilterChange}
+        value={filter}
+      />
+    </Lable>
+  );
+};
