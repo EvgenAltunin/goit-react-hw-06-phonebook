@@ -1,40 +1,42 @@
 import { configureStore, combineReducers } from '@reduxjs/toolkit';
-import { rootReducer } from './reducer';
+import {
+  persistStore,
+  persistReducer,
+  FLUSH,
+  REHYDRATE,
+  PAUSE,
+  PERSIST,
+  PURGE,
+  REGISTER,
+} from 'redux-persist';
+import storage from 'redux-persist/lib/storage';
 
+import { contactsInitState } from 'redux/init-state';
+// import { contactsListReducer, filterReducer } from 'redux/reducer';
+import { contactsReducer } from 'redux/contacts.slice';
+import { filterReducer } from 'redux/filter.slice';
+
+const persistConfig = {
+  key: 'phonebook',
+  storage,
+  whitelist: ['contacts'],
+};
+
+const rootReducer = combineReducers({
+  contacts: contactsReducer,
+  filter: filterReducer,
+});
+const persistedReducer = persistReducer(persistConfig, rootReducer);
 export const store = configureStore({
-  reducer: rootReducer,
+  preloadedState: contactsInitState,
+  devTools: true,
+  reducer: persistedReducer,
+  middleware: getDefaultMiddleware =>
+    getDefaultMiddleware({
+      serializableCheck: {
+        ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+      },
+    }),
 });
 
-// const reduser = (state = 0, action) => {
-//     console.log(action)
-//     // if (action.type === 'CHANGE_FILTER') {
-//     //     return {filter: state.filter + action.payload}
-//     // }
-//     if (action.type === 'ADD_NEW_CONTACT') {
-//         return { contacts: [action.payload, ...state.contacts] };
-//     }
-//     if (action.type === 'DELETE_CONTACT') {
-//         return {
-//           contacts: [state.contacts.filter(contact => contact.id !== action.payload)],
-//         };
-//     }
-
-//    return state
-// };
-// const enhancer = devToolsEnhancer();
-// export const store = createStore(
-//   reduser,
-//   {
-//     contacts: [
-//       { id: 'id-1', name: 'Rosie Simpson', number: '459-12-56' },
-//       { id: 'id-2', name: 'Hermione Kline', number: '443-89-12' },
-//       { id: 'id-3', name: 'Eden Clements', number: '645-17-79' },
-//       { id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
-//     ],
-//     filter: '',
-//   },
-//   enhancer
-// );
-// console.log(store.getState())
-
-// store.dispatch({type: 'TEST'})
+export const persistor = persistStore(store);
